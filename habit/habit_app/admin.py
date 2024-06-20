@@ -1,16 +1,26 @@
 from django.contrib import admin
-from .models import UserProfile, Topic, UserDefinedUnits, Task
+from .models import Topic, UserDefinedUnits, Task, User
 
 # Register your models here.
 
-class UserProfileAdmin(admin.ModelAdmin):
+
+
+class UserAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'user',
+        'email',
+        'name',
+        'first_name',
+        'last_name',
+        'date_of_birth',
+        'city',
+        'zip_code',
+        'mobile_number',
+        'is_active',
+        'is_staff',
         'created_at',
-        'modified_at',
+        'updated_at'
     ]
-
 
 
 class TopicAdmin(admin.ModelAdmin):
@@ -67,7 +77,7 @@ class TaskAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(User, UserAdmin)
 admin.site.register(Topic, TopicAdmin)
 admin.site.register(UserDefinedUnits, UserDefinedUnitsAdmin)
 admin.site.register(Task, TaskAdmin)

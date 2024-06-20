@@ -6,7 +6,7 @@ from .models import Topic, Task, UserDefinedUnits
 from .models import all_records
 from .serializers import TopicSerializer, TaskSerializer, UserDefinedUnitsSerializer
 
-from manager.topic.topic_logic import calc_duration_days, insert_plan_data, add_new_task
+from manager.topic.topic_logic import calc_duration_days, insert_plan_data, add_new_task, add_new_topic
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -45,24 +45,10 @@ class TopicApiViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
     
     def create(self, request, *args, **kwargs):
-        data     = json.loads(request.body)
+        topic    = json.loads(request.body)
         cur_user = request.user
-
-        # calculates the difference between start and end date in days
-        duration_days = calc_duration_days(data['startdate'], data['enddate'])
-
-        new_data = {
-            "user_id"       : cur_user.id,
-            "topic_name"    : data.get('topicname'),
-            "start_date"    : data.get('startdate'),
-            'end_date'      : data.get('enddate'),
-            'duration_days' : duration_days,
-        }
-
-        serializer = TopicSerializer(data=new_data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({'success' : True, 'status' : 'New Topic created successfully'})
+        response = add_new_topic(topic, cur_user) 
+        return Response(data=response)
     
     def perform_update(self, serializer):
         return super().perform_update(serializer)
@@ -91,10 +77,10 @@ class TaskApiViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
     def create(self, request):
-        task   = json.loads(request.body)
-        user   = request.user
-        status = add_new_task(task, user)
-        return Response(data={'success' : True, 'status' : status}, status=HTTP_201_CREATED)
+        task     = json.loads(request.body)
+        user     = request.user
+        response = add_new_task(task, user)
+        return Response(data=response)    
     
     def perform_update(self, serializer):
         return super().perform_update(serializer)
@@ -129,4 +115,4 @@ def create_new_plan(request):
     plan    = json.loads(request.body)
     user    = request.user
     message = insert_plan_data(plan, user)    
-    return Response({'success' : True, 'status' : message})
+    return Response(data=message, status=HTTP_201_CREATED)
