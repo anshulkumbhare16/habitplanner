@@ -53,6 +53,5 @@ class TaskCompletion(models.Model):
     timestamp = models.DateTimeField()
 
 
-
 def all_records(model_name):
     return model_name.objects.all().order_by('id')

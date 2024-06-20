@@ -70,7 +70,7 @@ def insert_plan_data(plan, user):
 # function to add new Task
 def add_new_task(task, user):
     user_id             = user
-    topic_id            = task.get('topic_id')
+    topic_id            = task.get('topicid')
     taskname            = task.get('taskname')
     times               = task.get('times')
     system_defined_unit = task.get('system_defined_unit')

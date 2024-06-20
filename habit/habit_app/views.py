@@ -1,9 +1,10 @@
 import json
 
 from django.shortcuts import render, HttpResponse
-from .models import Topic, Task
+
+from .models import Topic, Task, UserDefinedUnits
 from .models import all_records
-from .serializers import TopicSerializer, TaskSerializer
+from .serializers import TopicSerializer, TaskSerializer, UserDefinedUnitsSerializer
 
 from manager.topic.topic_logic import calc_duration_days, insert_plan_data, add_new_task
 
@@ -32,7 +33,7 @@ class TopicApiViewSet(viewsets.ModelViewSet):
 
 #   Filters
     filter_backends  = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['id', 'topic_name',]
+    filterset_fields = ['id', 'user_id', 'topic_name',]
     search_fields    = ['^topic_name']
     ordering_fields  = ['id', 'topic_name']
     ordering         = ['id', 'topic_name']
@@ -48,13 +49,13 @@ class TopicApiViewSet(viewsets.ModelViewSet):
         cur_user = request.user
 
         # calculates the difference between start and end date in days
-        duration_days = calc_duration_days(data['start_date'], data['end_date'])
+        duration_days = calc_duration_days(data['startdate'], data['enddate'])
 
         new_data = {
             "user_id"       : cur_user.id,
-            "topic_name"    : data.get('topic_name'),
-            "start_date"    : data.get('start_date'),
-            'end_date'      : data.get('end_date'),
+            "topic_name"    : data.get('topicname'),
+            "start_date"    : data.get('startdate'),
+            'end_date'      : data.get('enddate'),
             'duration_days' : duration_days,
         }
 
@@ -103,6 +104,21 @@ class TaskApiViewSet(viewsets.ModelViewSet):
     
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+    
+
+@permission_classes([IsAuthenticated])
+class UserDefinedUnitsAPIViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes     = [IsAuthenticated]
+
+    queryset         = all_records(UserDefinedUnits)
+    serializer_class = UserDefinedUnitsSerializer
+
+    filter_backends  = [DjangoFilterBackend]
+    filterset_fields = ['id', 'user_id', 'unit']
+
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
     
 
 

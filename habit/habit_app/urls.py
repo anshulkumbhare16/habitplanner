@@ -6,6 +6,7 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 router.register(r'topic', views.TopicApiViewSet)
 router.register(r'task', views.TaskApiViewSet)
+router.register(r'userdefinedunits', views.UserDefinedUnitsAPIViewSet)
 
 urlpatterns = [
     path('habitapp/', include(router.urls)),

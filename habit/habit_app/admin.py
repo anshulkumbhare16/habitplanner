@@ -11,6 +11,8 @@ class UserProfileAdmin(admin.ModelAdmin):
         'modified_at',
     ]
 
+
+
 class TopicAdmin(admin.ModelAdmin):
     list_display = [
         'id',
@@ -22,7 +24,13 @@ class TopicAdmin(admin.ModelAdmin):
         'created_at',
         'modified_at',
     ]
+    list_filter =[
+        'user_id',
+        'start_date',
+    ]
     list_per_page = 50
+
+
 
 class UserDefinedUnitsAdmin(admin.ModelAdmin):
     list_display = [
@@ -30,6 +38,11 @@ class UserDefinedUnitsAdmin(admin.ModelAdmin):
         'user_id',
         'unit',
     ]
+    list_filter = [
+        'user_id'
+    ]
+
+
 
 class TaskAdmin(admin.ModelAdmin):
     list_display = [
@@ -44,7 +57,14 @@ class TaskAdmin(admin.ModelAdmin):
         'created_at',
         'modified_at',
     ]
+    list_filter = [
+        'taskname',
+        'topic_id',
+        'user_id',
+    ]
     list_per_page = 50
+
+
 
 
 admin.site.register(UserProfile, UserProfileAdmin)
