@@ -1,0 +1,7 @@
+habit/manager/__pycache__
+habit/habit/__pycache__
+habit/habit/migrations
+
+habit/habit_app/migrations/__pycache__
+habit/habit_app/__pycache__
+habit/manager/topic/__pycache__
