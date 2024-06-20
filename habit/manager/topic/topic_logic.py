@@ -1,6 +1,8 @@
 import datetime, json
 
-from habit_app.models import Topic, Task, UserDefinedUnits
+from habit_app.models import User, Topic, Task, UserDefinedUnits
+
+from habit_app.serializers import TopicSerializer
 
 # calculating difference in 2 dates of string type
 def calc_duration_days(startdate, enddate):
@@ -42,7 +44,9 @@ def insert_plan_data(plan, user):
             user_defined_unit   = task.get('user_defined_unit')
 
             if system_defined_unit != None and user_defined_unit != None:
-                raise Exception("Choose only one type of unit System Defined / UserDefined")
+                topic = Topic.objects.filter(id = topic_id.id)
+                topic.delete()
+                raise Exception("Choose only one type of unit SystemDefined / UserDefined")
             elif user_defined_unit == None and system_defined_unit != None:
                 add_task_with_system_defined_unit(
                 user_id,
@@ -51,7 +55,7 @@ def insert_plan_data(plan, user):
                 times,
                 system_defined_unit
             )
-            else:
+            elif system_defined_unit is None and user_defined_unit != None:
                 add_task_with_user_defined_unit(
                     user_id,
                     topic_id,
@@ -62,9 +66,36 @@ def insert_plan_data(plan, user):
 
                 if is_in_userdefined_unit(user_id, user_defined_unit) == False:
                     add_user_defined_unit(user_id, user_defined_unit)
-        return "Plan Successfully created"
+            else:
+                topic = Topic.objects.filter(id = topic_id.id)
+                topic.delete()
+                raise Exception("Need atleast 1 unit SystemDefined / UserDefined")
+        return {'success' : True, 'status' : "Plan Successfully created"}
     except Exception as e:        
-        return str(e)
+        print(e)
+        return {'success' : False, 'status' : str(e)}
+    
+
+def add_new_topic(topic, user):
+    user_id       = user.id
+    duration_days = calc_duration_days(topic['startdate'], topic['enddate'])
+
+    try:
+        new_topic = {
+            "user_id"       : user_id,
+            "topic_name"    : topic.get('topicname'),
+            "start_date"    : topic.get('startdate'),
+            'end_date'      : topic.get('enddate'),
+            'duration_days' : duration_days,
+        }
+
+        serializer = TopicSerializer(data=new_topic)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return {'success' : True, 'status' : 'New Topic Created Successfully'}
+    except Exception as e:
+        print(e)
+        return {'success' : False, 'status' : str(e)}
     
 
 # function to add new Task
@@ -77,33 +108,37 @@ def add_new_task(task, user):
     user_defined_unit   = task.get('user_defined_unit')
 
     topic_instance = get_topic_instance_by_id(topic_id)
-
-    try:
-        if system_defined_unit != None and user_defined_unit != None:
-            raise Exception('only single unit can be set!!!')
-        elif system_defined_unit != None and user_defined_unit is None:
-            add_task_with_system_defined_unit(
-                user_id,
-                topic_instance,
-                taskname,
-                times,
-                system_defined_unit
-            )
-        else:
-            add_task_with_user_defined_unit(
-                user_id,
-                topic_instance,
-                taskname,
-                times,
-                user_defined_unit
-            )
-            
-            if is_in_userdefined_unit(user_id, user_defined_unit) == False:
-                add_user_defined_unit(user_id, user_defined_unit)
-        return "success"
-    except Exception as e:
-        return str(e)
-
+    if bool(topic_instance.count()):
+        try:
+            if system_defined_unit != None and user_defined_unit != None:
+                raise Exception('only single unit can be set!!!')
+            elif system_defined_unit != None and user_defined_unit is None:
+                add_task_with_system_defined_unit(
+                    user_id,
+                    topic_instance[0],
+                    taskname,
+                    times,
+                    system_defined_unit
+                )
+            elif system_defined_unit is None and user_defined_unit != None:
+                add_task_with_user_defined_unit(
+                    user_id,
+                    topic_instance[0],
+                    taskname,
+                    times,
+                    user_defined_unit
+                )
+                
+                if is_in_userdefined_unit(user_id, user_defined_unit) == False:
+                    add_user_defined_unit(user_id, user_defined_unit)
+            else:
+                raise Exception("Need atleast 1 unit SystemDefined / UserDefined")
+            return {'success' : True, 'status' : "New Task Added Successfully"}
+        except Exception as e:
+            print(e)
+            return {'success' : False, 'status' : str(e)}
+    else:
+        return {'success' : False, 'status' : "Topic Dosen't exists"}
 
 # Creating task with system designed records
 def add_task_with_system_defined_unit(user_id, topic_id, taskname, times, system_defined_unit):
@@ -140,7 +175,7 @@ def add_user_defined_unit(user_id, unit):
 
 # retrieve topic instance by id 
 def get_topic_instance_by_id(topic_id):
-    topic_instance = Topic.objects.filter(id = topic_id)[0]
+    topic_instance = Topic.objects.filter(id = topic_id)
     return topic_instance
 
 

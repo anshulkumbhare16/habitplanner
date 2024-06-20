@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import requests
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +35,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
 
 INSTALLED_APPS = [
+    # 'django.contrib.sites',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
     'habit_app',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -46,6 +52,32 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+AUTH_USER_MODEL = 'habit_app.User'
+
+
+# AUTHENTICATION_BACKENDS = [
+#     # Default backend for Django authentication.
+#     'django.contrib.auth.backends.ModelBackend',
+
+#     # Allauth specific authentication methods, such as login by e-mail.
+#     'allauth.account.auth_backends.AuthenticationBackend',
+# ]
+
+# # Setup allauth parameters
+# SITE_ID = 1
+# # LOGIN_REDIRECT_URL :- destination of login page in your urls.py
+# LOGIN_REDIRECT_URL = '/'
+# # ACCOUNT_LOGOUT_REDIRECT :- where to redirect when user logout
+# ACCOUNT_LOGOUT_REDIRECT = '/'
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {'access_type': 'online'},
+#     }
+# }
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -69,6 +101,8 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -103,7 +137,8 @@ WSGI_APPLICATION = 'habit.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME' : 'habit_database',
     }
 }
 
